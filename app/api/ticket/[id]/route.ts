@@ -5,25 +5,6 @@ export const dynamic = "force-dynamic";
 
 type TicketStatus = "pending" | "processing" | "replied" | "completed" | "cancelled";
 
-interface TicketInfo {
-  ticketNumber: number;
-  applicant?: string;
-  customerName?: string;
-  customerRequirement?: string;
-  machineType?: string;
-  startDate?: string;
-  expectedCompletionDate?: string;
-  replyDate?: string;
-  createdAt?: string;
-  processingAt?: string;
-  completedAt?: string;
-  fcst?: string;
-  massProductionDate?: string;
-  status: TicketStatus;
-  note: string;
-  assignee?: string;
-}
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -87,7 +68,7 @@ export async function GET(
       note: data?.note || "",
       assignee: data?.assignee || "",
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "處理請求時發生錯誤" },
       { status: 500 }
@@ -213,7 +194,7 @@ export async function DELETE(
     // Get all ticket numbers, filter out the one to delete, then replace the list
     const allTickets = await redis.lrange<number>("queue:tickets", 0, -1);
     const filteredTickets = (allTickets || [])
-      .map((t: any) => Number(t))
+      .map((t: unknown) => Number(t))
       .filter((n: number) => n !== ticketNumber && Number.isFinite(n));
     
     // Delete the old list and recreate it with filtered values

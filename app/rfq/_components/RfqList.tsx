@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import type { RfqArea, RfqRecord } from "./types";
-
-const statuses = ["new", "processing", "done"];
 
 const areaLabel: Record<RfqArea, string> = {
   system: "System RFQ",
@@ -24,12 +23,12 @@ async function fetchDetail(area: RfqArea, rfqNo: string): Promise<RfqRecord | nu
   return { rfqNo, ...data };
 }
 
-function field(record: Record<string, any>, keys: string[]) {
+function field(record: Record<string, unknown>, keys: string[]): string {
   for (const k of keys) {
     const v = record[k];
-    if (v) return v;
+    if (v) return String(v);
     const lower = record[k.toLowerCase()];
-    if (lower) return lower;
+    if (lower) return String(lower);
   }
   return "";
 }
@@ -57,7 +56,7 @@ export default function RfqList({ area }: { area: RfqArea }) {
         setIds(list);
         const details = await Promise.all(list.map((id) => fetchDetail(area, id)));
         setRows(details.filter(Boolean) as RfqRecord[]);
-      } catch (e) {
+      } catch {
         setError("載入失敗，請重試");
       } finally {
         setLoading(false);
@@ -119,8 +118,8 @@ export default function RfqList({ area }: { area: RfqArea }) {
 
     // 排序
     result.sort((a, b) => {
-      let aVal: any;
-      let bVal: any;
+      let aVal: string | number;
+      let bVal: string | number;
 
       switch (sortField) {
         case "rfqNo":
@@ -140,8 +139,8 @@ export default function RfqList({ area }: { area: RfqArea }) {
           bVal = field(b, ["sales", "Sales", "業務"]).toLowerCase();
           break;
         case "status":
-          aVal = a.workflowStatus || a["RFQ Status"] || a["Status"] || "new";
-          bVal = b.workflowStatus || b["RFQ Status"] || b["Status"] || "new";
+          aVal = String(a.workflowStatus || a["RFQ Status"] || a["Status"] || "new");
+          bVal = String(b.workflowStatus || b["RFQ Status"] || b["Status"] || "new");
           break;
         case "assignedPM":
           aVal = field(a, ["Assigned PM", "assigned PM", "assignedPM", "assignee"]).toLowerCase();
@@ -163,12 +162,12 @@ export default function RfqList({ area }: { area: RfqArea }) {
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <a
+          <Link
             href="/"
             className="rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
           >
             ← 返回主頁
-          </a>
+          </Link>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{areaLabel[area]} 列表</h1>
             <p className="text-sm text-gray-600">

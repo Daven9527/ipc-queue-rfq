@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 interface QueueState {
   currentNumber: number;
@@ -39,7 +40,7 @@ const PM_STORAGE_KEY = "pmAuth";
 
 // RFQ列表組件（供PM使用，可編輯PM回覆）
 function RfqListForPmComponent() {
-  const [rfqs, setRfqs] = useState<Array<{ area: "system" | "mb"; rfqNo: string; data: any }>>([]);
+  const [rfqs, setRfqs] = useState<Array<{ area: "system" | "mb"; rfqNo: string; data: Record<string, unknown> }>>([]);
   const [loading, setLoading] = useState(false);
   const [editingRfq, setEditingRfq] = useState<{ area: "system" | "mb"; rfqNo: string } | null>(null);
   const [pmReply, setPmReply] = useState("");
@@ -94,7 +95,7 @@ function RfqListForPmComponent() {
       setEditingRfq(null);
       setPmReply("");
       alert("PM回覆已儲存");
-    } catch (error) {
+    } catch {
       alert("儲存失敗");
     } finally {
       setSaving(false);
@@ -119,17 +120,17 @@ function RfqListForPmComponent() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {rfqs.map((rfq) => {
-              const customer = rfq.data.customer || rfq.data.Customer || "";
-              const currentPmReply = rfq.data.pmReply || "";
+              const customer = String(rfq.data.customer || rfq.data.Customer || "");
+              const currentPmReply = String(rfq.data.pmReply || "");
               const isEditing = editingRfq?.area === rfq.area && editingRfq?.rfqNo === rfq.rfqNo;
               
               return (
                 <tr key={`${rfq.area}-${rfq.rfqNo}`} className="hover:bg-gray-50">
                   <td className="px-4 py-2 text-sm text-gray-800">{rfq.area === "system" ? "System" : "MB"}</td>
                   <td className="px-4 py-2 text-sm">
-                    <a href={`/rfq/${rfq.area}/${encodeURIComponent(rfq.rfqNo)}`} className="text-blue-700 hover:underline">
+                    <Link href={`/rfq/${rfq.area}/${encodeURIComponent(rfq.rfqNo)}`} className="text-blue-700 hover:underline">
                       {rfq.rfqNo}
-                    </a>
+                    </Link>
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-800">{customer}</td>
                   <td className="px-4 py-2 text-sm text-gray-800">
@@ -644,12 +645,12 @@ export default function AdminPage() {
               </button>
             </form>
             <div className="mt-6 text-center space-y-2">
-              <a
+              <Link
                 href="/"
                 className="text-sm text-blue-600 hover:text-blue-800 underline block"
               >
                 返回首頁
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -668,12 +669,12 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 md:p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-4 md:mb-6">
-          <a
+          <Link
             href="/"
             className="inline-block rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
           >
             ← 返回主頁
-          </a>
+          </Link>
         </div>
         <div className="mb-6 md:mb-8 text-center">
           <div className="flex items-center justify-between mb-2">
@@ -1087,12 +1088,12 @@ export default function AdminPage() {
         )}
 
         <div className="mt-4 md:mt-6 text-center">
-          <a
+          <Link
             href="/"
             className="text-sm md:text-base text-blue-600 hover:text-blue-800 underline"
           >
             返回首頁
-          </a>
+          </Link>
         </div>
       </div>
 

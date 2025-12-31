@@ -16,7 +16,7 @@ const INDEX_KEY = (area: Area) => `rfq:${area}:ids`;
 const HASH_KEY = (area: Area, rfqNo: string) => `rfq:${area}:${rfqNo}`;
 const nowIso = () => new Date().toISOString();
 
-function normalizeRecord(row: any[], headers: string[]) {
+function normalizeRecord(row: unknown[], headers: string[]) {
   const rec: Record<string, string> = {};
   headers.forEach((h, idx) => {
     const key = (h ?? "").toString().trim();
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       if (!area) continue; // 忽略 Flow 或其他 sheet
 
       const sheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1, defval: "" });
+      const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "" });
       if (!rows || rows.length < 3) continue; // 至少需要：格式化標題行、標題行、一筆資料
 
       // 第一行是格式化標題，跳過；第二行（index 1）是真正的 headers

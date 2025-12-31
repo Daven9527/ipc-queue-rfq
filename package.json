@@ -1,5 +1,5 @@
 {
-  "name": "ipc-queue",
+  "name": "ipc-queue-rfq",
   "version": "0.1.0",
   "private": true,
   "scripts": {

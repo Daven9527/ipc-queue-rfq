@@ -20,15 +20,15 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   // 嘗試從 Basic Auth 取得使用者，否則看 body
   const basicUser = await authenticateBasic(request);
-  let body: any = {};
+  let body: Record<string, unknown> = {};
   try {
     body = await request.json();
   } catch {
     body = {};
   }
 
-  const username = basicUser?.username ?? body?.username;
-  const role = basicUser?.role ?? body?.role ?? "unknown";
+  const username = basicUser?.username ?? String(body?.username ?? "");
+  const role = basicUser?.role ?? String(body?.role ?? "unknown");
   const action = body?.action;
   const detail = body?.detail;
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
   await addLog({
     ts: new Date().toISOString(),
-    username,
+    username: String(username),
     role: String(role),
     action: String(action),
     detail: detail ? String(detail) : undefined,

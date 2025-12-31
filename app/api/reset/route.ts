@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "重置失敗" },
       { status: 500 }

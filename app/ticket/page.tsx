@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function TicketPage() {
   const router = useRouter();
@@ -168,12 +169,12 @@ export default function TicketPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <div className="mx-auto max-w-2xl">
         <div className="mb-4 md:mb-6">
-          <a
+          <Link
             href="/"
             className="inline-block rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
           >
             ← 返回主頁
-          </a>
+          </Link>
         </div>
         <div className="mb-6 md:mb-8 text-center">
           <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">抽號服務</h1>

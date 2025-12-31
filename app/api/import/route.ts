@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import * as XLSX from "xlsx";
 import { authenticateBasic, requireRole } from "@/lib/auth";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const worksheet = workbook.Sheets[firstSheetName];
 
     // 將工作表轉換為 JSON
-    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][];
 
     if (data.length < 2) {
       return NextResponse.json(

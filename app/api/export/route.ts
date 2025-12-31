@@ -18,7 +18,7 @@ export async function GET() {
     // 獲取所有票券號碼
     const raw = await redis.lrange<number>("queue:tickets", 0, -1);
     const ticketNumbers: number[] = (raw ?? [])
-      .map((x: any) => Number(x))
+      .map((x: unknown) => Number(x))
       .filter((n) => Number.isFinite(n));
 
     if (ticketNumbers.length === 0) {

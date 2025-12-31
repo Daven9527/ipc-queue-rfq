@@ -50,7 +50,7 @@ export async function GET() {
     if (systemRfqs.length > 0) {
       // 將所有欄位轉換為陣列格式，保持欄位順序
       const systemData = systemRfqs.map((rfq) => {
-        const row: Record<string, any> = {};
+        const row: Record<string, unknown> = {};
         // 確保重要欄位在前面
         row["RFQ No."] = rfq["rfqNo"] || "";
         row["workflowStatus"] = rfq["workflowStatus"] || "";
@@ -83,7 +83,7 @@ export async function GET() {
     // 處理 MB RFQ 資料
     if (mbRfqs.length > 0) {
       const mbData = mbRfqs.map((rfq) => {
-        const row: Record<string, any> = {};
+        const row: Record<string, unknown> = {};
         row["RFQ No."] = rfq["rfqNo"] || "";
         row["workflowStatus"] = rfq["workflowStatus"] || "";
         row["assignee"] = rfq["assignee"] || "";

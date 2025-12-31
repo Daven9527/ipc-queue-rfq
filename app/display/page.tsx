@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface QueueState {
   currentNumber: number;
@@ -142,12 +143,12 @@ export default function DisplayPage() {
       <div className="w-full max-w-7xl mx-auto">
         {/* 返回主頁按鈕 */}
         <div className="mb-4 md:mb-6 text-center">
-          <a
+          <Link
             href="/"
             className="inline-block px-4 md:px-6 py-2 md:py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg text-white font-medium transition-colors text-sm md:text-base"
           >
             返回主頁
-          </a>
+          </Link>
         </div>
 
         <div className="mb-4 md:mb-6 flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">

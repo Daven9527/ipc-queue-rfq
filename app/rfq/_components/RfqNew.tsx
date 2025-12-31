@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { RfqArea } from "./types";
 
 const areaLabel: Record<RfqArea, string> = {
@@ -45,12 +46,12 @@ export default function RfqNew({ area }: { area: RfqArea }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <a
+        <Link
           href="/"
           className="rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
         >
           ← 返回主頁
-        </a>
+        </Link>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{areaLabel[area]} 新增</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-3">

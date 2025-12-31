@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 async function fetchIds(area: "system" | "mb", status?: string) {
   const url = new URL(`/api/rfq/${area}`, window.location.origin);
@@ -63,12 +64,12 @@ export default function RfqDashboard() {
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/"
               className="rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
             >
               ← 返回首頁
-            </a>
+            </Link>
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">RFQ 流程系統</h1>
               <p className="text-sm text-gray-600 mt-1">System / MB RFQ 狀態總覽</p>
@@ -118,12 +119,12 @@ export default function RfqDashboard() {
             >
               匯出 Excel
             </button>
-            <a href="/rfq/system" className="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700">
+            <Link href="/rfq/system" className="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700">
               System RFQ
-            </a>
-            <a href="/rfq/mb" className="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">
+            </Link>
+            <Link href="/rfq/mb" className="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">
               MB RFQ
-            </a>
+            </Link>
           </div>
         </div>
 

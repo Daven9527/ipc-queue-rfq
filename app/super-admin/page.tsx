@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
 
 type UserRole = "pm" | "super" | "sales";
 
@@ -48,7 +49,7 @@ function RfqEditComponent({ auth, authHeader }: { auth: AuthState | null; authHe
       const data = await res.json();
       setRfqData(data);
       setEditingFields(data);
-    } catch (error) {
+    } catch {
       alert("載入失敗");
     } finally {
       setLoading(false);
@@ -69,7 +70,7 @@ function RfqEditComponent({ auth, authHeader }: { auth: AuthState | null; authHe
       });
       await handleLoad();
       alert("更新成功");
-    } catch (error) {
+    } catch {
       alert("更新失敗");
     } finally {
       setSaving(false);
@@ -157,9 +158,10 @@ export default function SuperAdminPage() {
   const [formError, setFormError] = useState("");
   const [editingUser, setEditingUser] = useState<string | null>(null);
 
-  const authHeader: HeadersInit | undefined = auth
-    ? { Authorization: `Basic ${auth.token}` }
-    : undefined;
+  const authHeader: HeadersInit | undefined = useMemo(
+    () => (auth ? { Authorization: `Basic ${auth.token}` } : undefined),
+    [auth]
+  );
 
   const logEvent = async (action: string, detail?: string) => {
     if (!auth?.username) return;
@@ -204,12 +206,7 @@ export default function SuperAdminPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!auth) return;
-    fetchUsers();
-  }, [auth]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!auth) return;
     setUsersLoading(true);
     try {
@@ -227,7 +224,12 @@ export default function SuperAdminPage() {
     } finally {
       setUsersLoading(false);
     }
-  };
+  }, [auth, authHeader]);
+
+  useEffect(() => {
+    if (!auth) return;
+    fetchUsers();
+  }, [auth, fetchUsers]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -597,9 +599,9 @@ export default function SuperAdminPage() {
               </button>
             </form>
             <div className="mt-6 text-center">
-              <a href="/" className="text-sm text-blue-600 hover:text-blue-800 underline">
+              <Link href="/" className="text-sm text-blue-600 hover:text-blue-800 underline">
                 返回首頁
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -611,12 +613,12 @@ export default function SuperAdminPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 md:p-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-4 md:mb-6">
-          <a
+          <Link
             href="/"
             className="inline-block rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
           >
             ← 返回主頁
-          </a>
+          </Link>
         </div>
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <div>

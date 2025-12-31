@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Convert to number array
     const ticketNumbers: number[] = (raw ?? [])
-      .map((x: any) => Number(x))
+      .map((x: unknown) => Number(x))
       .filter((n) => Number.isFinite(n));
 
     if (ticketNumbers.length === 0) {

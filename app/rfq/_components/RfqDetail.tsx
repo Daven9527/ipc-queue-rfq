@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import type { RfqArea, RfqRecord } from "./types";
 
 const defaultStatuses = ["new", "processing", "done"];
@@ -105,13 +106,13 @@ export default function RfqDetail({ area, rfqNo }: { area: RfqArea; rfqNo: strin
 
   const entries = Object.entries(data);
 
-  const formatValue = (key: string, value: any): string => {
+  const formatValue = (key: string, value: unknown): string => {
     if (!value) return "";
     // 檢查是否為日期欄位
     const dateKeys = ["createdAt", "updatedAt", "date", "Date", "sales apply date", "Sales Apply Date", "target mp schedule", "Target MP schedule", "quotation reply date", "Quotation reply date", "rfq start date", "RFQ start date", "rfq close date", "RFQ close date", "1st sample provide date", "1st Sample provide date", "salesReplyDate", "pmReplyDate"];
     if (dateKeys.some(dk => key.toLowerCase().includes(dk.toLowerCase()))) {
       // 嘗試解析為日期
-      const date = new Date(value);
+      const date = new Date(String(value));
       if (!isNaN(date.getTime())) {
         return date.toLocaleString("zh-TW", { 
           year: "numeric", 
@@ -129,12 +130,12 @@ export default function RfqDetail({ area, rfqNo }: { area: RfqArea; rfqNo: strin
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <a
+          <Link
             href="/"
             className="rounded-lg bg-gray-200 text-gray-800 px-3 py-2 text-sm font-medium hover:bg-gray-300"
           >
             ← 返回主頁
-          </a>
+          </Link>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               {area.toUpperCase()} RFQ - {data.rfqNo}

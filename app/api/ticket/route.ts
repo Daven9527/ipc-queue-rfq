@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ ticketNumber });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "處理請求時發生錯誤" },
       { status: 500 }
