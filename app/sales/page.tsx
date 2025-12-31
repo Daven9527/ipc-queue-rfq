@@ -25,7 +25,9 @@ export default function SalesPage() {
   const [rfqs, setRfqs] = useState<RfqItem[]>([]);
   const [rfqLoading, setRfqLoading] = useState(false);
   const [editingRfq, setEditingRfq] = useState<{ area: "system" | "mb"; rfqNo: string } | null>(null);
-  const [salesReply, setSalesReply] = useState("");
+  const [rfqResult, setRfqResult] = useState("");
+  const [rfqFailReason, setRfqFailReason] = useState("");
+  const [statusUpdateRemark, setStatusUpdateRemark] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -125,17 +127,34 @@ export default function SalesPage() {
     if (!editingRfq || !auth) return;
     setSaving(true);
     try {
+      const updates: Record<string, string> = {
+        "Status update / Remark": statusUpdateRemark,
+        "Status update/Remark": statusUpdateRemark,
+        "statusUpdateRemark": statusUpdateRemark,
+      };
+      if (rfqResult) {
+        updates["RFQ result"] = rfqResult;
+        updates["RFQ result\r\n(下拉選單)"] = rfqResult;
+        updates["rfqResult"] = rfqResult;
+      }
+      if (rfqFailReason) {
+        updates["RFQ Fail reason"] = rfqFailReason;
+        updates["RFQ Fail reason"] = rfqFailReason;
+        updates["rfqFailReason"] = rfqFailReason;
+      }
       await fetch(`/api/rfq/${editingRfq.area}/${encodeURIComponent(editingRfq.rfqNo)}`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",
           "Authorization": `Basic ${auth.token}`
         },
-        body: JSON.stringify({ salesReply, salesReplyDate: new Date().toISOString() }),
+        body: JSON.stringify(updates),
       });
       await loadRfqs();
       setEditingRfq(null);
-      setSalesReply("");
+      setRfqResult("");
+      setRfqFailReason("");
+      setStatusUpdateRemark("");
       alert("Sales回覆已儲存");
     } catch {
       alert("儲存失敗");
@@ -240,14 +259,18 @@ export default function SalesPage() {
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">類型</th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">RFQ No</th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">客戶</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Sales回覆</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">RFQ Result</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">RFQ Fail Reason</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Status update/Remark</th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {rfqs.map((rfq) => {
                     const customer = String(rfq.data.customer || rfq.data.Customer || "");
-                    const currentSalesReply = String(rfq.data.salesReply || "");
+                    const currentRfqResult = String(rfq.data["RFQ result"] || rfq.data["RFQ result\r\n(下拉選單)"] || rfq.data["rfqResult"] || "");
+                    const currentRfqFailReason = String(rfq.data["RFQ Fail reason"] || rfq.data["RFQ Fail reason"] || rfq.data["rfqFailReason"] || "");
+                    const currentStatusUpdateRemark = String(rfq.data["Status update / Remark"] || rfq.data["Status update/Remark"] || rfq.data["statusUpdateRemark"] || "");
                     const isEditing = editingRfq?.area === rfq.area && editingRfq?.rfqNo === rfq.rfqNo;
                     
                     return (
@@ -261,14 +284,38 @@ export default function SalesPage() {
                         <td className="px-4 py-2 text-sm text-gray-800">{customer}</td>
                         <td className="px-4 py-2 text-sm text-gray-800">
                           {isEditing ? (
+                            <input
+                              type="text"
+                              value={rfqResult}
+                              onChange={(e) => setRfqResult(e.target.value)}
+                              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                            />
+                          ) : (
+                            <div className="max-w-xs truncate">{currentRfqResult || "-"}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-800">
+                          {isEditing ? (
                             <textarea
-                              value={salesReply}
-                              onChange={(e) => setSalesReply(e.target.value)}
+                              value={rfqFailReason}
+                              onChange={(e) => setRfqFailReason(e.target.value)}
                               className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
                               rows={2}
                             />
                           ) : (
-                            <div className="max-w-xs truncate">{currentSalesReply || "-"}</div>
+                            <div className="max-w-xs truncate">{currentRfqFailReason || "-"}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-800">
+                          {isEditing ? (
+                            <textarea
+                              value={statusUpdateRemark}
+                              onChange={(e) => setStatusUpdateRemark(e.target.value)}
+                              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                              rows={3}
+                            />
+                          ) : (
+                            <div className="max-w-xs truncate">{currentStatusUpdateRemark || "-"}</div>
                           )}
                         </td>
                         <td className="px-4 py-2 text-sm">
@@ -284,7 +331,9 @@ export default function SalesPage() {
                               <button
                                 onClick={() => {
                                   setEditingRfq(null);
-                                  setSalesReply("");
+                                  setRfqResult("");
+                                  setRfqFailReason("");
+                                  setStatusUpdateRemark("");
                                 }}
                                 className="rounded bg-gray-200 px-2 py-1 text-xs text-gray-800 hover:bg-gray-300"
                               >
@@ -295,7 +344,9 @@ export default function SalesPage() {
                             <button
                               onClick={() => {
                                 setEditingRfq({ area: rfq.area, rfqNo: rfq.rfqNo });
-                                setSalesReply(currentSalesReply);
+                                setRfqResult(currentRfqResult);
+                                setRfqFailReason(currentRfqFailReason);
+                                setStatusUpdateRemark(currentStatusUpdateRemark);
                               }}
                               className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
                             >

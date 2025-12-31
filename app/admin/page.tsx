@@ -43,7 +43,8 @@ function RfqListForPmComponent() {
   const [rfqs, setRfqs] = useState<Array<{ area: "system" | "mb"; rfqNo: string; data: Record<string, unknown> }>>([]);
   const [loading, setLoading] = useState(false);
   const [editingRfq, setEditingRfq] = useState<{ area: "system" | "mb"; rfqNo: string } | null>(null);
-  const [pmReply, setPmReply] = useState("");
+  const [rfqStartDate, setRfqStartDate] = useState("");
+  const [pmStatusUpdate, setPmStatusUpdate] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -82,18 +83,55 @@ function RfqListForPmComponent() {
     }
   };
 
+  // Excel日期序列號轉換為日期字串 (YYYY-MM-DD)
+  const excelDateToDateString = (excelDate: number | string): string => {
+    if (!excelDate) return "";
+    const num = typeof excelDate === "string" ? parseFloat(excelDate) : excelDate;
+    if (isNaN(num)) return "";
+    // Excel日期從1900-01-01開始計算，但Excel錯誤地認為1900是閏年，所以需要減去1
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + num * 86400000);
+    if (isNaN(date.getTime())) return "";
+    return date.toISOString().split("T")[0];
+  };
+
+  // 日期字串轉換為Excel日期序列號
+  const dateStringToExcelDate = (dateStr: string): string => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "";
+    const excelEpoch = new Date(1899, 11, 30);
+    const diff = date.getTime() - excelEpoch.getTime();
+    const days = Math.round(diff / 86400000);
+    return String(days);
+  };
+
   const handleSavePmReply = async () => {
     if (!editingRfq) return;
     setSaving(true);
     try {
+      const updates: Record<string, string> = {};
+      if (pmStatusUpdate) {
+        updates["PM Status Update"] = pmStatusUpdate;
+        updates["pmStatusUpdate"] = pmStatusUpdate;
+      }
+      if (rfqStartDate) {
+        // 將日期字串轉換為Excel日期序列號格式儲存
+        const excelDate = dateStringToExcelDate(rfqStartDate);
+        if (excelDate) {
+          updates["RFQ start date"] = excelDate;
+          updates["rfq start date"] = excelDate;
+        }
+      }
       await fetch(`/api/rfq/${editingRfq.area}/${encodeURIComponent(editingRfq.rfqNo)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pmReply, pmReplyDate: new Date().toISOString() }),
+        body: JSON.stringify(updates),
       });
       await loadRfqs();
       setEditingRfq(null);
-      setPmReply("");
+      setRfqStartDate("");
+      setPmStatusUpdate("");
       alert("PM回覆已儲存");
     } catch {
       alert("儲存失敗");
@@ -114,14 +152,20 @@ function RfqListForPmComponent() {
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">類型</th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">RFQ No</th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">客戶</th>
-              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">PM回覆</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">RFQ Start date</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">PM Status update</th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {rfqs.map((rfq) => {
               const customer = String(rfq.data.customer || rfq.data.Customer || "");
-              const currentPmReply = String(rfq.data.pmReply || "");
+              // 將Excel日期序列號轉換為日期字串顯示
+              const rfqStartDateRaw = rfq.data["RFQ start date"] || rfq.data["rfq start date"] || "";
+              const currentRfqStartDate = rfqStartDateRaw 
+                ? excelDateToDateString(Number(rfqStartDateRaw) || String(rfqStartDateRaw))
+                : "";
+              const currentPmStatusUpdate = String(rfq.data["PM Status Update"] || rfq.data["pmStatusUpdate"] || "");
               const isEditing = editingRfq?.area === rfq.area && editingRfq?.rfqNo === rfq.rfqNo;
               
               return (
@@ -135,14 +179,26 @@ function RfqListForPmComponent() {
                   <td className="px-4 py-2 text-sm text-gray-800">{customer}</td>
                   <td className="px-4 py-2 text-sm text-gray-800">
                     {isEditing ? (
-                      <textarea
-                        value={pmReply}
-                        onChange={(e) => setPmReply(e.target.value)}
+                      <input
+                        type="date"
+                        value={rfqStartDate}
+                        onChange={(e) => setRfqStartDate(e.target.value)}
                         className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
-                        rows={2}
                       />
                     ) : (
-                      <div className="max-w-xs truncate">{currentPmReply || "-"}</div>
+                      <div className="max-w-xs">{currentRfqStartDate || "-"}</div>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {isEditing ? (
+                      <textarea
+                        value={pmStatusUpdate}
+                        onChange={(e) => setPmStatusUpdate(e.target.value)}
+                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        rows={3}
+                      />
+                    ) : (
+                      <div className="max-w-xs truncate">{currentPmStatusUpdate || "-"}</div>
                     )}
                   </td>
                   <td className="px-4 py-2 text-sm">
@@ -158,7 +214,8 @@ function RfqListForPmComponent() {
                         <button
                           onClick={() => {
                             setEditingRfq(null);
-                            setPmReply("");
+                            setRfqStartDate("");
+                            setPmStatusUpdate("");
                           }}
                           className="rounded bg-gray-200 px-2 py-1 text-xs text-gray-800 hover:bg-gray-300"
                         >
@@ -169,7 +226,8 @@ function RfqListForPmComponent() {
                       <button
                         onClick={() => {
                           setEditingRfq({ area: rfq.area, rfqNo: rfq.rfqNo });
-                          setPmReply(currentPmReply);
+                          setRfqStartDate(currentRfqStartDate);
+                          setPmStatusUpdate(currentPmStatusUpdate);
                         }}
                         className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
                       >

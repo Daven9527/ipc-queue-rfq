@@ -119,6 +119,9 @@ export default function RfqDashboard() {
             >
               匯出 Excel
             </button>
+            <Link href="/rfq/new" className="rounded-lg bg-purple-600 text-white px-4 py-2 text-sm font-medium hover:bg-purple-700">
+              新增 RFQ
+            </Link>
             <Link href="/rfq/system" className="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700">
               System RFQ
             </Link>
