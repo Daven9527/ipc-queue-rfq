@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { username, password, role } = body || {};
 
-    if (!username || !password || (role !== "pm" && role !== "super")) {
+    if (!username || !password || (role !== "pm" && role !== "super" && role !== "sales")) {
       return NextResponse.json(
         { error: "請提供帳號、密碼與角色 (pm/super/sales)" },
         { status: 400 }

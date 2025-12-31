@@ -796,7 +796,9 @@ export default function SuperAdminPage() {
                   {users.map((user) => (
                     <tr key={user.username}>
                       <td className="px-4 py-3 text-sm text-gray-900">{user.username}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{user.role === "super" ? "管理員" : "PM"}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        {user.role === "super" ? "管理員" : user.role === "sales" ? "Sales" : "PM"}
+                      </td>
                       <td className="px-4 py-3 text-right space-x-2">
                         <button
                           onClick={() => handleEditUser(user)}

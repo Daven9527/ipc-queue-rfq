@@ -32,7 +32,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ usern
       return NextResponse.json({ error: "superadmin 密碼不可變更" }, { status: 400 });
     }
 
-    const role = newRole === "pm" || newRole === "super" ? newRole : existing.role;
+    const role = (newRole === "pm" || newRole === "super" || newRole === "sales") ? newRole : existing.role;
     const password = newPassword ? String(newPassword) : existing.password;
 
     const saved = await createOrUpdateUser({
